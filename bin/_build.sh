@@ -15,8 +15,6 @@
 # limitations under the License.
 ##
 
-. "${wd}/bin/_py.sh";
-
 
 # Provide a default value: if the variable named by the first argument is
 # empty, set it to the default in the second argument.
@@ -79,6 +77,16 @@ find_header () {
   fi;
 };
 
+# We don't know the prefix of binaries in PATH, so use PATH definition
+# to identify include directories we may otherwise miss and and generate
+# a CPATH value.
+gen_cpath () {
+  local b i
+  printf $PATH | tr ':' '\n' | while read b; do
+    i="$(dirname "${b}")/include"
+    [ -d "$i" ] && echo "$i" || true
+  done | uniq | tr '\n' ':' | sed 's/:$//'
+}
 
 # Initialize all the global state required to use this library.
 init_build () {
@@ -93,6 +101,8 @@ init_build () {
   conditional_set do_setup "true";
   conditional_set force_setup "false";
   conditional_set virtualenv_opts "";
+  conditional_set CPATH "$(gen_cpath)";
+  export CPATH
 
       dev_home="${wd}/.develop";
      dev_roots="${dev_home}/roots";
@@ -781,13 +791,6 @@ pip_download_and_install () {
 #
 # Set up for development
 #
-develop () {
-  init_build;
-  c_dependencies;
-  py_dependencies;
-  macos_oracle;
-}
-
 
 develop_clean () {
   init_build;
