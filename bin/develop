@@ -24,17 +24,9 @@ if [ -z "${wd:-}" ]; then
   wd="$(cd "$(dirname "$0")/.." && pwd)";
 fi;
 
-# Source python bootstrap functions.
-. "${wd}/bin/_py.sh";
-
-# Source build functions.
 . "${wd}/bin/_build.sh";
 
-# Call functions to start development build.
-init_build;
-c_dependencies;
-py_dependencies;
-macos_oracle;
+develop;
 
 cd ${wd};
 
